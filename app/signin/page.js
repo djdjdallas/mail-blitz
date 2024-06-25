@@ -6,8 +6,8 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import config from "@/config";
 
-// This a login/singup page for Supabase Auth.
-// Successfull login redirects to /api/auth/callback where the Code Exchange is processed (see app/api/auth/callback/route.js).
+// This is a login/signup page for Supabase Auth.
+// Successful login redirects to /api/auth/callback where the Code Exchange is processed (see app/api/auth/callback/route.js).
 export default function Login() {
   const supabase = createClientComponentClient();
   const [email, setEmail] = useState("");
@@ -69,7 +69,7 @@ export default function Login() {
         </Link>
       </div>
       <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-center mb-12">
-        Sign-in to {config.appName}{" "}
+        Sign-in to {config.appName}
       </h1>
 
       <div className="space-y-8 max-w-xl mx-auto">
@@ -107,6 +107,28 @@ export default function Login() {
             </svg>
           )}
           Sign-up with Google
+        </button>
+
+        <button
+          className="btn btn-block"
+          onClick={(e) => handleSignup(e, { type: "oauth", provider: "azure" })}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <span className="loading loading-spinner loading-xs"></span>
+          ) : (
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="#0078D4"
+                d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm.707 18H9v-1.414l5.293-5.293 1.414 1.414L12.707 18zM15 8.586L10.707 12.88l-1.414-1.415L13.586 7H15v1.586z"
+              />
+            </svg>
+          )}
+          Sign-up with Microsoft
         </button>
 
         <div className="divider text-xs text-base-content/50 font-medium">
