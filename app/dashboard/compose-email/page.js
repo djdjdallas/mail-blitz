@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTemplate } from "@/app/context/TemplateContext";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -16,14 +17,14 @@ import {
 } from "lucide-react";
 
 export default function ComposeEmail() {
-  const { selectedTemplate } = useTemplate();
+  const { template } = useTemplate();
   const [emailTemplate, setEmailTemplate] = useState(null);
 
   useEffect(() => {
-    if (selectedTemplate) {
-      setEmailTemplate(selectedTemplate);
+    if (template) {
+      setEmailTemplate(template);
     }
-  }, [selectedTemplate]);
+  }, [template]);
 
   return (
     <div className="flex h-[100dvh] w-full flex-col items-center justify-center bg-background">
@@ -63,7 +64,7 @@ export default function ComposeEmail() {
                 id="message"
                 placeholder="Type your message here..."
                 className="h-[300px] resize-none"
-                defaultValue={emailTemplate?.body || ""}
+                defaultValue={emailTemplate?.body.replace(/\n/g, "<br>") || ""}
               />
             </div>
             <div className="flex items-center justify-between">

@@ -39,7 +39,7 @@ export default function ViewTemplate() {
           <Textarea
             placeholder="Type your email content here..."
             className="h-[400px] w-full resize-none rounded-lg border border-input bg-background p-4 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
-            defaultValue={emailTemplate?.body || ""}
+            defaultValue={emailTemplate?.body.replace(/\n/g, "<br>") || ""}
           />
           <div className="mt-4 flex justify-end gap-2">
             <Button variant="outline">Preview</Button>
