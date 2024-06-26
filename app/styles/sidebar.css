@@ -1,0 +1,69 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Default color for icons and text */
+.sidebar-link-icon,
+.sidebar-link-text {
+  color: black;
+}
+
+/* Hide text by default */
+.sidebar-link-text {
+  display: none;
+}
+
+/* Show text when sidebar is expanded */
+.group:hover .sidebar-link-text {
+  display: inline;
+}
+
+/* Hover color for icons and text */
+.group:hover .sidebar-link-icon,
+.group:hover .sidebar-link-text {
+  color: white;
+}
+
+/* Hover background color */
+.hover\\:bg-primary:hover {
+  background-color: hsl(var(--primary));
+}
+
+/* Hover text color */
+.hover\\:text-white:hover {
+  color: white;
+}
+.group:hover .sidebar-link-text {
+  display: inline;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.sidebar-link-text {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease-in-out, visibility 0.5s ease-in-out;
+}
+
+.group:hover .sidebar-link-text {
+  opacity: 1;
+  visibility: visible;
+}

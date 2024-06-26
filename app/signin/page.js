@@ -6,8 +6,6 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import toast from "react-hot-toast";
 import config from "@/config";
 
-// This is a login/signup page for Supabase Auth.
-// Successful login redirects to /api/auth/callback where the Code Exchange is processed (see app/api/auth/callback/route.js).
 export default function Login() {
   const supabase = createClientComponentClient();
   const [email, setEmail] = useState("");
