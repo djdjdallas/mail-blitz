@@ -11,7 +11,7 @@ async function fetchEmailsWithToken(token) {
   try {
     const result = await gmail.users.messages.list({
       userId: "me",
-      maxResults: 10,
+      maxResults: 25,
     });
     const messages = result.data.messages || [];
     console.log(`Fetched ${messages.length} messages`);
