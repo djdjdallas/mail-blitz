@@ -21,7 +21,15 @@ export default function Login() {
       const { type, provider } = options;
       const redirectURL = window.location.origin + "/api/auth/callback";
 
-      if (type === "oauth") {
+      if (type === "oauth" && provider === "google") {
+        await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: redirectURL,
+            scopes: "https://www.googleapis.com/auth/gmail.readonly", // Add your scopes here
+          },
+        });
+      } else if (type === "oauth" && provider !== "google") {
         await supabase.auth.signInWithOAuth({
           provider,
           options: {

@@ -16,6 +16,7 @@ import {
   Settings,
   FileText,
   Mail,
+  Send,
 } from "lucide-react";
 import ButtonAccount from "@/components/ButtonAccount";
 
@@ -71,6 +72,19 @@ export default function Sidebar() {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Video</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/dashboard/campaigns"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                prefetch={false}
+              >
+                <Send className="h-5 w-5" />
+                <span className="sr-only">Campaign</span>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">Campaigns</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>

@@ -64,7 +64,7 @@ export default function ComposeEmail() {
                 id="message"
                 placeholder="Type your message here..."
                 className="h-[300px] resize-none"
-                defaultValue={emailTemplate?.body.replace(/\n/g, "<br>") || ""}
+                defaultValue={emailTemplate?.body.replace(/\\n/g, "\n") || ""}
               />
             </div>
             <div className="flex items-center justify-between">
