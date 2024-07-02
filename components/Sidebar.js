@@ -17,6 +17,7 @@ import {
   FileText,
   Mail,
   Send,
+  BotMessageSquare,
 } from "lucide-react";
 import ButtonAccount from "@/components/ButtonAccount";
 
@@ -59,19 +60,6 @@ export default function Sidebar() {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Analytics</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Link
-                href="/dashboard/video"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-                prefetch={false}
-              >
-                <Video className="h-5 w-5" />
-                <span className="sr-only">Video</span>
-              </Link>
-            </TooltipTrigger>
-            <TooltipContent side="right">Video</TooltipContent>
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -124,6 +112,19 @@ export default function Sidebar() {
               </Link>
             </TooltipTrigger>
             <TooltipContent side="right">Calendar</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/dashboard/chat"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                prefetch={false}
+              >
+                <BotMessageSquare className="h-5 w-5" />
+                <span className="sr-only">Chat</span>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">Chat</TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
