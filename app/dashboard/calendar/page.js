@@ -42,6 +42,7 @@ export default function CalendarPage() {
         }
 
         const googleEvents = await fetchGoogleCalendarEvents(accessToken);
+        console.log("Google Events:", googleEvents); // Log the events
         setEvents([...data, ...googleEvents]);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -52,9 +53,13 @@ export default function CalendarPage() {
     fetchData();
   }, [accessToken, supabase]);
 
+  useEffect(() => {
+    console.log("Updated events state:", events); // Log the updated state
+  }, [events]);
+
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <aside className="hidden w-64 border-r bg-background p-6 md:block">
+      <aside className="hidden w-64 border-r bg-background p-6 md:block ml-10">
         <div className="mb-6">
           <h2 className="text-lg font-semibold">Upcoming Events</h2>
         </div>
