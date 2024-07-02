@@ -1,6 +1,4 @@
-export async function fetchGoogleCalendarEvents() {
-  const accessToken = localStorage.getItem("googleAccessToken");
-
+export async function fetchGoogleCalendarEvents(accessToken) {
   if (!accessToken) {
     console.error("No access token found");
     throw new Error("No access token found for Google Calendar");

@@ -1,9 +1,7 @@
-// app/api/fetch-emails/route.js
-
 import { google } from "googleapis";
 import { NextResponse } from "next/server";
 
-async function fetchEmailsWithToken(token) {
+async function fetchEmailsWithToken(token, page, limit) {
   const auth = new google.auth.OAuth2();
   auth.setCredentials({ access_token: token });
 
@@ -11,7 +9,8 @@ async function fetchEmailsWithToken(token) {
   try {
     const result = await gmail.users.messages.list({
       userId: "me",
-      maxResults: 10,
+      maxResults: limit,
+      pageToken: page,
     });
     const messages = result.data.messages || [];
     console.log(`Fetched ${messages.length} messages`);
@@ -26,7 +25,7 @@ async function fetchEmailsWithToken(token) {
       })
     );
 
-    return emails;
+    return { emails, nextPageToken: result.data.nextPageToken };
   } catch (error) {
     console.error(
       "Error fetching emails with token:",
@@ -37,7 +36,7 @@ async function fetchEmailsWithToken(token) {
 }
 
 export async function POST(req) {
-  const { token } = await req.json();
+  const { token, page, limit } = await req.json();
 
   if (!token) {
     console.error("Missing token");
@@ -45,8 +44,12 @@ export async function POST(req) {
   }
 
   try {
-    const emails = await fetchEmailsWithToken(token);
-    return NextResponse.json(emails);
+    const { emails, nextPageToken } = await fetchEmailsWithToken(
+      token,
+      page,
+      limit
+    );
+    return NextResponse.json({ emails, nextPageToken });
   } catch (error) {
     console.error(
       "Error fetching emails:",

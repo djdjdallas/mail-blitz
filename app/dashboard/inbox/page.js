@@ -25,12 +25,24 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Inbox, Send, Trash2, Archive, FileText } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationEllipsis,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"; // Assuming you have these components
 
 export default function InboxPage() {
   const supabase = createClientComponentClient();
   const [emails, setEmails] = useState([]);
   const [accessToken, setAccessToken] = useState("");
   const [selectedEmail, setSelectedEmail] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [nextPageToken, setNextPageToken] = useState(null);
 
   useEffect(() => {
     const getSession = async () => {
@@ -46,7 +58,7 @@ export default function InboxPage() {
     getSession();
   }, [supabase]);
 
-  const fetchEmails = async (token) => {
+  const fetchEmails = async (token, pageToken = null) => {
     try {
       console.log("Fetching emails with token:", token);
 
@@ -55,13 +67,15 @@ export default function InboxPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({ token, page: pageToken, limit: 25 }),
       });
 
       if (response.ok) {
-        const emails = await response.json();
+        const { emails, nextPageToken } = await response.json();
         console.log("Fetched emails:", emails);
         setEmails(emails);
+        setNextPageToken(nextPageToken);
+        setTotalPages(Math.ceil(200 / 25)); // Assuming 200 emails total
       } else {
         console.error("Failed to fetch emails");
       }
@@ -75,6 +89,12 @@ export default function InboxPage() {
       fetchEmails(accessToken);
     }
   }, [accessToken]);
+
+  useEffect(() => {
+    if (accessToken) {
+      fetchEmails(accessToken, nextPageToken);
+    }
+  }, [currentPage]);
 
   const getEmailContent = (email) => {
     if (!email.payload) return "";
@@ -105,6 +125,10 @@ export default function InboxPage() {
 
   const countEmailsByLabel = (label) => {
     return emails.filter((email) => email.labelIds.includes(label)).length;
+  };
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -255,6 +279,35 @@ export default function InboxPage() {
               </Card>
             ))}
           </div>
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href="#"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <PaginationItem key={index}>
+                  <PaginationLink
+                    href="#"
+                    onClick={() => handlePageChange(index + 1)}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationEllipsis />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  href="#"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
         <div className="flex flex-col w-1/2 p-4 border-l h-full overflow-y-auto">
           <h3 className="text-lg font-bold mb-4">Email Content</h3>

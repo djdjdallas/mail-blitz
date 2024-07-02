@@ -26,7 +26,8 @@ export default function Login() {
           provider,
           options: {
             redirectTo: redirectURL,
-            scopes: "https://www.googleapis.com/auth/gmail.readonly", // Add your scopes here
+            scopes:
+              "https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/calendar.readonly", // Add your scopes here
           },
         });
       } else if (type === "oauth" && provider !== "google") {

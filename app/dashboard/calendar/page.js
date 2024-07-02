@@ -9,9 +9,26 @@ export default function CalendarPage() {
   const [events, setEvents] = useState([]);
   const [error, setError] = useState(null);
   const supabase = createClientComponentClient();
+  const [accessToken, setAccessToken] = useState("");
+
+  useEffect(() => {
+    async function getSession() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) {
+        console.log("Session:", session);
+        setAccessToken(session.provider_token);
+      }
+    }
+
+    getSession();
+  }, [supabase]);
 
   useEffect(() => {
     async function fetchData() {
+      if (!accessToken) return;
+
       try {
         const { data, error } = await supabase
           .from("new_events")
@@ -24,7 +41,7 @@ export default function CalendarPage() {
           return;
         }
 
-        const googleEvents = await fetchGoogleCalendarEvents();
+        const googleEvents = await fetchGoogleCalendarEvents(accessToken);
         setEvents([...data, ...googleEvents]);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -33,7 +50,7 @@ export default function CalendarPage() {
     }
 
     fetchData();
-  }, [supabase]);
+  }, [accessToken, supabase]);
 
   return (
     <div className="flex min-h-screen w-full bg-background">
