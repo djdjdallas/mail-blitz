@@ -14,7 +14,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
+import DOMPurify from "dompurify";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { Inbox, Send, Trash2, Archive, FileText } from "lucide-react";
 
 export default function InboxPage() {
   const supabase = createClientComponentClient();
@@ -66,24 +76,102 @@ export default function InboxPage() {
     }
   }, [accessToken]);
 
+  const getEmailContent = (email) => {
+    if (!email.payload) return "";
+
+    const getContent = (parts) => {
+      for (const part of parts) {
+        if (part.mimeType === "text/html" || part.mimeType === "text/plain") {
+          const decodedContent = atob(
+            part.body.data.replace(/-/g, "+").replace(/_/g, "/")
+          );
+          const utf8Decoder = new TextDecoder("utf-8");
+          return utf8Decoder.decode(
+            new Uint8Array(
+              [...decodedContent].map((char) => char.charCodeAt(0))
+            )
+          );
+        }
+        if (part.parts) {
+          const content = getContent(part.parts);
+          if (content) return content;
+        }
+      }
+      return "";
+    };
+
+    return getContent([email.payload]);
+  };
+
+  const countEmailsByLabel = (label) => {
+    return emails.filter((email) => email.labelIds.includes(label)).length;
+  };
+
   return (
     <div className="flex h-screen ml-10">
-      <nav className="bg-gray-100 border-r px-6 py-8 flex flex-col gap-6 w-1/6">
-        <Button variant="ghost" className="justify-start gap-2 text-left">
-          Inbox
-        </Button>
-        <Button variant="ghost" className="justify-start gap-2 text-left">
-          Sent
-        </Button>
-        <Button variant="ghost" className="justify-start gap-2 text-left">
-          Drafts
-        </Button>
-        <Button variant="ghost" className="justify-start gap-2 text-left">
-          Trash
-        </Button>
-      </nav>
+      <aside className="w-48 p-4 mt-20 ml-2">
+        <nav className="space-y-2">
+          <Link
+            href="#"
+            className="flex items-center justify-between p-2 text-sm font-medium bg-gray-200 rounded-md"
+            prefetch={false}
+          >
+            <span className="flex items-center">
+              <Inbox className="w-5 h-5 mr-2" />
+              Inbox
+            </span>
+            <Badge>{countEmailsByLabel("INBOX")}</Badge>
+          </Link>
+          <Link
+            href="#"
+            className="flex items-center justify-between p-2 text-sm font-medium rounded-md"
+            prefetch={false}
+          >
+            <span className="flex items-center">
+              <FileText className="w-5 h-5 mr-2" />
+              Drafts
+            </span>
+            <Badge variant="secondary">{countEmailsByLabel("DRAFT")}</Badge>
+          </Link>
+          <Link
+            href="#"
+            className="flex items-center justify-between p-2 text-sm font-medium rounded-md"
+            prefetch={false}
+          >
+            <span className="flex items-center">
+              <Send className="w-5 h-5 mr-2" />
+              Sent
+            </span>
+            <Badge variant="secondary">{countEmailsByLabel("SENT")}</Badge>
+          </Link>
+          <Link
+            href="#"
+            className="flex items-center justify-between p-2 text-sm font-medium rounded-md"
+            prefetch={false}
+          >
+            <span className="flex items-center">
+              <Trash2 className="w-5 h-5 mr-2" />
+              Trash
+            </span>
+            <Badge variant="secondary">{countEmailsByLabel("TRASH")}</Badge>
+          </Link>
+          <Link
+            href="#"
+            className="flex items-center justify-between p-2 text-sm font-medium rounded-md"
+            prefetch={false}
+          >
+            <span className="flex items-center">
+              <Archive className="w-5 h-5 mr-2" />
+              Archive
+            </span>
+          </Link>
+        </nav>
+      </aside>
       <div className="flex flex-1 p-8 ml-6 bg-white shadow rounded-lg">
-        <div className="w-2/3 pr-4">
+        <div
+          className="w-1/2 pr-4 h-full overflow-y-auto"
+          style={{ minWidth: "400px" }}
+        >
           <div className="mb-6 flex items-center justify-between">
             <h1 className="text-3xl font-bold">Inbox</h1>
             <div className="flex items-center gap-4">
@@ -161,25 +249,26 @@ export default function InboxPage() {
                         ).value
                       }
                     </div>
-                    <div className="text-sm text-gray-600 line-clamp-2">
-                      {email.snippet}
-                    </div>
+                    <div className="text-sm text-gray-600">{email.snippet}</div>
                   </div>
                 </div>
               </Card>
             ))}
           </div>
         </div>
-        <div className="flex flex-col w-1/3 p-4 border-l">
+        <div className="flex flex-col w-1/2 p-4 border-l h-full overflow-y-auto">
           <h3 className="text-lg font-bold mb-4">Email Content</h3>
-          <Textarea
-            value={selectedEmail ? selectedEmail.snippet : ""}
-            readOnly
-            placeholder="Select an email to read its content..."
-            className="flex-1 min-h-[300px]"
+          <div
+            className="flex-1 p-4 bg-gray-50 border rounded overflow-y-auto"
+            style={{ minHeight: "300px" }}
+            dangerouslySetInnerHTML={{
+              __html: selectedEmail
+                ? DOMPurify.sanitize(getEmailContent(selectedEmail))
+                : "Select an email to read its content...",
+            }}
           />
           <Button variant="primary" className="mt-4">
-            Send
+            Reply
           </Button>
         </div>
       </div>
