@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, Fragment } from "react";
-import {
-  Dialog,
-  DialogPanel,
-  Transition,
-  TransitionChild,
-} from "@headlessui/react";
+import { Dialog, Transition } from "@headlessui/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,7 +57,7 @@ export default function AddContactModal({ open, onClose }) {
   return (
     <Transition show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
-        <TransitionChild
+        <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -72,11 +67,11 @@ export default function AddContactModal({ open, onClose }) {
           leaveTo="opacity-0"
         >
           <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
-        </TransitionChild>
+        </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center sm:items-center sm:p-0">
-            <TransitionChild
+            <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -85,7 +80,7 @@ export default function AddContactModal({ open, onClose }) {
               leaveFrom="opacity-100 translate-y-0 sm:scale-100"
               leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
             >
-              <DialogPanel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+              <Dialog.Panel className="relative transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
                 <Card>
                   <CardHeader>
                     <CardTitle>Add Contact</CardTitle>
@@ -157,8 +152,8 @@ export default function AddContactModal({ open, onClose }) {
                     Cancel
                   </Button>
                 </div>
-              </DialogPanel>
-            </TransitionChild>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
         </div>
       </Dialog>
