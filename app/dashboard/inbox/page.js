@@ -66,19 +66,6 @@ export default function InboxPage() {
     }
   }, [accessToken]);
 
-  const getEmailContent = (email) => {
-    if (!email.payload || !email.payload.parts) return "";
-
-    const part = email.payload.parts.find(
-      (part) => part.mimeType === "text/html" || part.mimeType === "text/plain"
-    );
-    if (part && part.body && part.body.data) {
-      return atob(part.body.data.replace(/-/g, "+").replace(/_/g, "/"));
-    }
-
-    return "";
-  };
-
   return (
     <div className="flex h-screen ml-10">
       <nav className="bg-gray-100 border-r px-6 py-8 flex flex-col gap-6 w-1/6">
@@ -186,7 +173,7 @@ export default function InboxPage() {
         <div className="flex flex-col w-1/3 p-4 border-l">
           <h3 className="text-lg font-bold mb-4">Email Content</h3>
           <Textarea
-            value={selectedEmail ? getEmailContent(selectedEmail) : ""}
+            value={selectedEmail ? selectedEmail.snippet : ""}
             readOnly
             placeholder="Select an email to read its content..."
             className="flex-1 min-h-[300px]"

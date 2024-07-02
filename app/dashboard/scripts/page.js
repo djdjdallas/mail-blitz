@@ -5,7 +5,13 @@ import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { Button } from "@/components/ui/button";
 import { useTemplate } from "@/app/context/TemplateContext";
 import { useRouter } from "next/navigation";
-import { BicepsFlexed, Handshake, Smile, GraduationCap } from "lucide-react";
+import {
+  BicepsFlexed,
+  Handshake,
+  Smile,
+  GraduationCap,
+  Star,
+} from "lucide-react";
 
 export default function EmailTemplatesPage() {
   const [selectedTone, setSelectedTone] = useState("all");
@@ -18,12 +24,17 @@ export default function EmailTemplatesPage() {
     const fetchEmailTemplates = async () => {
       const { data, error } = await supabase
         .from("email_templates")
-        .select("*");
+        .select("*")
+        .order("tone", { ascending: true });
 
       if (error) {
         console.error("Error fetching email templates:", error);
       } else {
-        setEmailTemplates(data);
+        // Sort to have Popular first, if exists
+        const sortedTemplates = data.sort((a, b) =>
+          a.tone === "Popular" ? -1 : b.tone === "Popular" ? 1 : 0
+        );
+        setEmailTemplates(sortedTemplates);
       }
     };
 
@@ -83,6 +94,13 @@ export default function EmailTemplatesPage() {
           >
             Formal
           </Button>
+          <Button
+            variant={selectedTone === "popular" ? "solid" : "outline"}
+            onClick={() => setSelectedTone("popular")}
+            className="w-full justify-start"
+          >
+            Popular
+          </Button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
@@ -96,6 +114,7 @@ export default function EmailTemplatesPage() {
               {template.tone === "Professional" && <Handshake size={48} />}
               {template.tone === "Friendly" && <Smile size={48} />}
               {template.tone === "Formal" && <GraduationCap size={48} />}
+              {template.tone === "Popular" && <Star size={48} />}
             </div>
             <div className="p-4">
               <h3 className="text-lg font-bold mb-2">{template.title}</h3>
