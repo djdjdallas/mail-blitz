@@ -26,7 +26,7 @@ import {
   PaginationEllipsis,
   PaginationNext,
   PaginationPrevious,
-} from "@/components/ui/pagination"; // Assuming you have these components
+} from "@/components/ui/pagination";
 
 // Define LoadingComponent
 function LoadingComponent() {
@@ -45,26 +45,12 @@ function LoadingComponent() {
 export default function InboxPage() {
   const supabase = createClientComponentClient();
   const [emails, setEmails] = useState([]);
-  const [accessToken, setAccessToken] = useState("");
+  const [accessToken, setAccessToken] = useState(null);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [nextPageToken, setNextPageToken] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const getSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        console.log("Session:", session);
-        setAccessToken(session.provider_token);
-      }
-    };
-
-    getSession();
-  }, [supabase]);
 
   const fetchEmails = async (token, pageToken = null) => {
     setIsLoading(true);
@@ -79,15 +65,13 @@ export default function InboxPage() {
         body: JSON.stringify({ token, page: pageToken, limit: 25 }),
       });
 
-      if (response.ok) {
-        const { emails, nextPageToken } = await response.json();
-        console.log("Fetched emails:", emails);
-        setEmails(emails);
-        setNextPageToken(nextPageToken);
-        setTotalPages(Math.ceil(200 / 25)); // Assuming 200 emails total
-      } else {
-        console.error("Failed to fetch emails");
-      }
+      if (!response.ok) throw new Error("Failed to fetch emails");
+
+      const { emails, nextPageToken } = await response.json();
+      console.log("Fetched emails:", emails);
+      setEmails(emails);
+      setNextPageToken(nextPageToken);
+      setTotalPages(Math.ceil(200 / 25)); // Assuming 200 emails total
     } catch (error) {
       console.error("Error fetching emails:", error);
     } finally {
@@ -96,16 +80,36 @@ export default function InboxPage() {
   };
 
   useEffect(() => {
-    if (accessToken) {
-      fetchEmails(accessToken);
-    }
-  }, [accessToken]);
+    const getSessionAndFetchEmails = async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (session) {
+          console.log("Session:", session);
+          const token = session.provider_token;
+          if (token) {
+            setAccessToken(token);
+            await fetchEmails(token); // Fetch emails immediately after getting the token
+          } else {
+            console.error("No provider token available in session");
+          }
+        }
+      } catch (error) {
+        console.error("Error getting session:", error);
+      }
+    };
+
+    getSessionAndFetchEmails();
+  }, [supabase]);
 
   useEffect(() => {
     if (accessToken) {
       fetchEmails(accessToken, nextPageToken);
     }
-  }, [currentPage]);
+  }, [accessToken, currentPage]);
 
   const getEmailContent = (email) => {
     if (!email.payload) return "";
@@ -206,7 +210,7 @@ export default function InboxPage() {
         {isLoading ? (
           <LoadingComponent />
         ) : (
-          <div className="flex-1 flex">
+          <div className="flex-1 flex overflow-hidden">
             <div
               className="w-1/2 pr-4 h-full overflow-y-auto"
               style={{ minWidth: "400px" }}
