@@ -5,8 +5,14 @@
     "node": true,
     "es6": true
   },
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "requireConfigFile": false,
+    "babelOptions": {
+      "presets": ["next/babel", "@babel/preset-react", "@babel/preset-env"]
+    }
+  },
   "rules": {
-    // Your specific rules.
     "no-unused-vars": "warn"
   }
 }
