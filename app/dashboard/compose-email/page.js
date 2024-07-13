@@ -31,49 +31,47 @@ export default function ComposeEmail() {
   }, [template]);
 
   useEffect(() => {
-    const getUserEmailAndToken = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session) {
-        setFrom(session.user.email);
-
-        const refreshToken = session.refresh_token;
-        if (!refreshToken) {
-          throw new Error("Missing refresh token");
+    const getSessionAndAuthorize = async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (session) {
+          console.log("Session:", session);
+          const token = session.provider_token;
+          if (token) {
+            setAccessToken(token);
+            setFrom(session.user.email);
+            console.log("Provider Token:", token);
+          } else {
+            console.error("No provider token available in session");
+          }
         }
-
-        const response = await fetch("/api/get-access-token", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ refreshToken }),
+      } catch (error) {
+        console.error("Error getting session:", error);
+        toast({
+          title: "Error",
+          description: error.message,
         });
-
-        if (response.ok) {
-          const { accessToken } = await response.json();
-          setAccessToken(accessToken);
-        } else {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch access token");
-        }
       }
     };
 
-    getUserEmailAndToken();
-  }, [supabase]);
+    getSessionAndAuthorize();
+  }, [supabase, toast]);
 
   const sendEmail = async () => {
     try {
       if (!accessToken) throw new Error("No access token found");
 
-      const response = await fetch("/api/send-email", {
+      const response = await fetch("/api/send", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`, // Use the access token for authorization
         },
-        body: JSON.stringify({ to, from, subject, message, accessToken }),
+        body: JSON.stringify({ to, from, subject, message, firstName: "John" }), // Use actual first name
       });
 
       if (response.ok) {

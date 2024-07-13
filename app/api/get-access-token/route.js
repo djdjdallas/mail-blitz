@@ -14,7 +14,7 @@ export async function POST(req) {
   const oauth2Client = new google.auth.OAuth2(
     process.env.CLIENT_ID,
     process.env.CLIENT_SECRET,
-    process.env.REDIRECT_URI2
+    process.env.REDIRECT_URI
   );
 
   oauth2Client.setCredentials({ refresh_token: refreshToken });
@@ -23,13 +23,20 @@ export async function POST(req) {
     const { credentials } = await oauth2Client.refreshAccessToken();
     return NextResponse.json({ accessToken: credentials.access_token });
   } catch (error) {
-    console.error(
-      "Error refreshing access token:",
-      error.response?.data || error.message
-    );
-    return NextResponse.json(
-      { error: "Failed to refresh access token" },
-      { status: 500 }
-    );
+    console.error("Error refreshing access token:", error);
+
+    // Log the full error response if available
+    if (error.response && error.response.data) {
+      console.error("Error details:", error.response.data);
+    }
+
+    let errorMessage = "Failed to refresh access token";
+    if (error.response?.data?.error_description) {
+      errorMessage = error.response.data.error_description;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
