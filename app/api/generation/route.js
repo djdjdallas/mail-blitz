@@ -1,29 +1,27 @@
 // /app/api/generation/route.js
-import { Configuration, OpenAI } from "openai";
+import { ClientOptions, OpenAI } from "openai";
 
-const configuration = new Configuration({
+const configuration = {
   apiKey: process.env.OPENAI_API_KEY,
-});
+  baseURL: process.env.OPENAI_BASE_URL, // If you have a custom base URL
+  timeout: 60000, // Optional: set a timeout
+  fetch: typeof fetch !== "undefined" ? fetch : undefined, // Use global fetch if available
+};
 
 const openai = new OpenAI(configuration);
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method === "POST") {
     const { template, message } = req.body;
 
     try {
-      const response = await openai.createChatCompletion({
+      const response = await openai.completions.create({
         model: "text-davinci-003",
-        messages: [
-          {
-            role: "system",
-            content: `Generate an email based on the following template (${template}) and message: ${message}`,
-          },
-        ],
-        max_tokens: 150,
+        prompt: `Generate an email based on the following template (${template}) and message: ${message}`,
+        max_tokens: 300,
       });
 
-      const generatedMessage = response.data.choices[0].message.content.trim();
+      const generatedMessage = response.choices[0].text.trim();
 
       res.status(200).json({ generatedMessage });
     } catch (error) {
@@ -36,4 +34,4 @@ export default async function handler(req, res) {
   } else {
     res.status(405).json({ error: "Method not allowed" });
   }
-}
+};
